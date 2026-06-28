@@ -1,3 +1,4 @@
+import { IntroOverlay } from "@/components/intro-overlay"
 import { SiteHeader } from "@/components/site-header"
 import { Hero } from "@/components/hero"
 import { Concept } from "@/components/concept"
@@ -10,6 +11,7 @@ import { SiteFooter } from "@/components/site-footer"
 export default function Page() {
   return (
     <main className="bg-background">
+      <IntroOverlay />
       <SiteHeader />
       <Hero />
       <Concept />
