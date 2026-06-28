@@ -5,7 +5,12 @@ import { works, type Work } from "@/lib/db/schema"
 export type { Work }
 
 export async function getWorks(): Promise<Work[]> {
-  return db.select().from(works).orderBy(asc(works.order), asc(works.createdAt))
+  try {
+    return await db.select().from(works).orderBy(asc(works.order), asc(works.createdAt))
+  } catch {
+    console.warn("[works] Query failed — table may not exist yet")
+    return []
+  }
 }
 
 export async function getPublishedWorks(): Promise<Work[]> {
@@ -14,6 +19,10 @@ export async function getPublishedWorks(): Promise<Work[]> {
 }
 
 export async function getWorkById(id: string): Promise<Work | null> {
-  const rows = await db.select().from(works).where(eq(works.id, id)).limit(1)
-  return rows[0] ?? null
+  try {
+    const rows = await db.select().from(works).where(eq(works.id, id)).limit(1)
+    return rows[0] ?? null
+  } catch {
+    return null
+  }
 }

@@ -48,7 +48,12 @@ function revalidate(id?: string) {
 }
 
 export async function listWorks(): Promise<Work[]> {
-  return db.select().from(works).orderBy(asc(works.order), desc(works.createdAt))
+  try {
+    return await db.select().from(works).orderBy(asc(works.order), desc(works.createdAt))
+  } catch {
+    console.warn("[works] Query failed — table may not exist yet. Visit /api/init to create it.")
+    return []
+  }
 }
 
 export async function createWork(input: WorkInput) {
