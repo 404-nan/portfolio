@@ -1,4 +1,6 @@
-import { getWorks } from "@/lib/works"
+import Link from "next/link"
+import { getPublishedWorks } from "@/lib/works"
+import { Reveal } from "@/components/reveal"
 
 function Arrow() {
   return (
@@ -8,36 +10,38 @@ function Arrow() {
   )
 }
 
-export function FeaturedWork() {
-  const works = getWorks()
+export async function FeaturedWork() {
+  const works = await getPublishedWorks()
 
   return (
-    <section id="work" className="mx-auto max-w-6xl px-6 py-24 md:py-32">
-      <div className="flex items-center justify-between">
-        <div className="flex items-baseline gap-4">
-          <span className="font-mono text-sm text-muted-foreground">03</span>
-          <span className="font-mono text-xs tracking-[0.3em] text-muted-foreground">
-            FEATURED WORK
-          </span>
+    <section id="work" className="relative z-10 bg-background mx-auto max-w-6xl px-6 py-24 md:py-32">
+      <Reveal from="up">
+        <div className="flex items-center justify-between">
+          <div className="flex items-baseline gap-4">
+            <span className="font-mono text-sm text-muted-foreground">03</span>
+            <span className="font-mono text-xs tracking-[0.3em] text-muted-foreground">
+              FEATURED WORK
+            </span>
+          </div>
+          <Link
+            href="/works"
+            className="group flex items-center gap-3 font-mono text-xs tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+          >
+            VIEW ALL WORK <Arrow />
+          </Link>
         </div>
-        <a
-          href="#contact"
-          className="group flex items-center gap-3 font-mono text-xs tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
-        >
-          VIEW ALL WORK <Arrow />
-        </a>
-      </div>
+      </Reveal>
 
       <ul className="mt-12 border-t border-border/40">
-        {works.map((item) => (
-          <li key={item.id}>
-            <a
-              href="#contact"
+        {works.map((item, i) => (
+          <Reveal as="li" key={item.id} from="up" delay={i * 80}>
+            <Link
+              href={`/works/${item.id}`}
               className="group grid grid-cols-1 items-center gap-6 border-b border-border/40 py-6 sm:grid-cols-[200px_1fr_auto] sm:gap-8"
             >
               <div className="overflow-hidden rounded-sm">
                 <img
-                  src={item.image || "/placeholder.svg"}
+                  src={item.coverImage || "/placeholder.svg"}
                   alt={`${item.title} の事例ビジュアル`}
                   className="aspect-[16/9] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -49,8 +53,8 @@ export function FeaturedWork() {
               <span className="hidden text-muted-foreground transition-transform duration-300 group-hover:translate-x-2 group-hover:text-foreground sm:block">
                 <Arrow />
               </span>
-            </a>
-          </li>
+            </Link>
+          </Reveal>
         ))}
       </ul>
     </section>

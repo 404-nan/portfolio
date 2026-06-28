@@ -4,11 +4,11 @@ import { useState } from "react"
 import { NanLogo } from "./nan-logo"
 
 const NAV = [
-  { label: "CONCEPT", jp: "コンセプト", href: "#concept" },
-  { label: "ORIGIN", jp: "由来", href: "#origin" },
-  { label: "WORK", jp: "実績", href: "#work" },
-  { label: "PROCESS", jp: "プロセス", href: "#process" },
-  { label: "CONTACT", jp: "お問い合わせ", href: "#contact" },
+  { label: "CONCEPT", jp: "コンセプト", href: "/#concept" },
+  { label: "ORIGIN", jp: "由来", href: "/#origin" },
+  { label: "WORKS", jp: "実績", href: "/works" },
+  { label: "PROCESS", jp: "プロセス", href: "/#process" },
+  { label: "CONTACT", jp: "お問い合わせ", href: "/#contact" },
 ]
 
 export function SiteHeader() {
@@ -17,7 +17,7 @@ export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <a href="#top" aria-label="NaN — ホーム" className="text-foreground">
+        <a href="/" aria-label="NaN — ホーム" className="text-foreground">
           <NanLogo className="h-5" />
         </a>
 
