@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { GlitchText } from "@/components/glitch-text"
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement | null>(null)
@@ -35,17 +36,25 @@ export function Hero() {
     <section ref={sectionRef} id="top" className="relative h-[160svh] w-full">
       {/* Sticky cinematic stage */}
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
-        {/* Background sculpture — slow zoom-out on entry, parallax + fade on scroll */}
-        <img
-          src="/images/hero-sculpture.png"
-          alt="ダークストーンで造形された NaN のロゴと、その背後で輝く三日月状の光"
-          className="absolute inset-0 h-full w-full object-cover contrast-110 transition-[transform,filter,opacity] duration-[2400ms] ease-out"
+        {/* ENTRY LAYER — slow zoom-out + brighten on load (transition only depends on `entered`) */}
+        <div
+          className="absolute inset-0 transition-[transform,filter] duration-[2400ms] ease-out will-change-transform"
           style={{
-            transform: `scale(${(entered ? 1.05 : 1.25) + progress * 0.12}) translateY(${progress * 8}%)`,
-            filter: `brightness(${(entered ? 0.5 : 0) - progress * 0.25})`,
-            opacity: 1 - progress * 0.7,
+            transform: entered ? "scale(1.05)" : "scale(1.25)",
+            filter: entered ? "brightness(0.5)" : "brightness(0)",
           }}
-        />
+        >
+          {/* SCROLL LAYER — parallax + fade, driven directly by scroll (no transition = no lag) */}
+          <img
+            src="/images/hero-sculpture.png"
+            alt="ダークストーンで造形された NaN のロゴと、その背後で輝く三日月状の光"
+            className="absolute inset-0 h-full w-full object-cover contrast-110 will-change-transform"
+            style={{
+              transform: `scale(${1 + progress * 0.12}) translateY(${progress * 8}%)`,
+              opacity: 1 - progress * 0.7,
+            }}
+          />
+        </div>
 
         {/* Vignette + readability gradients */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/30 to-background" />
@@ -57,38 +66,62 @@ export function Hero() {
 
         {/* Copy */}
         <div className="relative z-10 mx-auto flex h-[100svh] max-w-6xl flex-col justify-center px-6 pt-24">
-          <p
-            className="mb-8 font-mono text-[10px] tracking-[0.5em] text-muted-foreground transition-all duration-[1400ms] ease-out"
+          {/* Each line: entry fade on the outer wrapper (transition), scroll motion on the inner (no transition). */}
+          <div
+            className="mb-8 transition-all duration-[1400ms] ease-out"
             style={{
-              opacity: entered ? 1 - progress * 1.5 : 0,
-              transform: `translateY(${entered ? 0 : 20}px)`,
+              opacity: entered ? 1 : 0,
+              transform: entered ? "translateY(0)" : "translateY(20px)",
               transitionDelay: "200ms",
             }}
           >
-            CREATIVE STUDIO — NaN
-          </p>
-          <h1
-            className="font-serif text-5xl font-light leading-[1.25] tracking-tight text-foreground text-balance transition-all duration-[1600ms] ease-out sm:text-6xl md:text-7xl"
+            <p
+              className="font-mono text-[10px] tracking-[0.5em] text-muted-foreground"
+              style={{ opacity: 1 - progress * 1.5 }}
+            >
+              CREATIVE STUDIO — NaN
+            </p>
+          </div>
+
+          <div
+            className="transition-all duration-[1600ms] ease-out"
             style={{
-              opacity: entered ? 1 - progress * 1.4 : 0,
-              transform: `translateY(${entered ? -progress * 40 : 40}px)`,
+              opacity: entered ? 1 : 0,
+              transform: entered ? "translateY(0)" : "translateY(40px)",
               transitionDelay: "400ms",
             }}
           >
-            測れないものを、
-            <br />
-            形にする。
-          </h1>
-          <p
-            className="mt-8 font-mono text-sm tracking-[0.3em] text-muted-foreground transition-all duration-[1600ms] ease-out"
+            <h1
+              className="font-serif text-5xl font-light leading-[1.25] tracking-tight text-foreground text-balance sm:text-6xl md:text-7xl"
+              style={{
+                opacity: 1 - progress * 1.4,
+                transform: `translateY(${-progress * 40}px)`,
+              }}
+            >
+              測れないものを、
+              <br />
+              <GlitchText text="形にする。" />
+            </h1>
+          </div>
+
+          <div
+            className="mt-8 transition-all duration-[1600ms] ease-out"
             style={{
-              opacity: entered ? 1 - progress * 1.5 : 0,
-              transform: `translateY(${entered ? -progress * 24 : 24}px)`,
+              opacity: entered ? 1 : 0,
+              transform: entered ? "translateY(0)" : "translateY(24px)",
               transitionDelay: "700ms",
             }}
           >
-            Na &nbsp;+&nbsp; N &nbsp;=&nbsp; NaN
-          </p>
+            <p
+              className="font-mono text-sm tracking-[0.3em] text-muted-foreground"
+              style={{
+                opacity: 1 - progress * 1.5,
+                transform: `translateY(${-progress * 24}px)`,
+              }}
+            >
+              Na &nbsp;+&nbsp; N &nbsp;=&nbsp; NaN
+            </p>
+          </div>
         </div>
 
         {/* Scroll cue */}
