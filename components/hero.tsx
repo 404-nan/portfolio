@@ -100,7 +100,8 @@ export function Hero() {
             >
               測れないものを、
               <br />
-              <GlitchText text="形にする。" />
+              <GlitchText text="形" />
+              にする。
             </h1>
           </div>
 

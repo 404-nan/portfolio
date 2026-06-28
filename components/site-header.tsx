@@ -34,8 +34,13 @@ export function SiteHeader() {
             }`}
           />
           <span
-            className={`h-px w-7 bg-foreground transition-all duration-300 ${
-              open ? "translate-y-[-1px] -rotate-45" : ""
+            className={`h-px w-7 bg-foreground transition-opacity duration-300 ${
+              open ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          <span
+            className={`h-px w-7 bg-foreground transition-transform duration-300 ${
+              open ? "translate-y-[-7px] -rotate-45" : ""
             }`}
           />
         </button>

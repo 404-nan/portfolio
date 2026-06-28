@@ -41,11 +41,14 @@ export function GlitchText({ text, className }: { text: string; className?: stri
       return t
     }
 
+    // Constant cadence for every font swap — no acceleration / deceleration.
+    const SWAP_INTERVAL = 90
+
     const spin = () => {
       if (cancelled) return
       setPhase("spin")
       // Number of rapid font swaps before it locks in.
-      const totalSwaps = 10 + Math.floor(Math.random() * 12)
+      const totalSwaps = 12 + Math.floor(Math.random() * 10)
       let swaps = 0
 
       const step = () => {
@@ -60,10 +63,8 @@ export function GlitchText({ text, className }: { text: string; className?: stri
           track(setTimeout(() => !cancelled && setPhase("hold"), 460))
           return
         }
-        // Decelerate slightly as it nears the end for a roulette feel.
-        const remaining = totalSwaps - swaps
-        const delay = remaining < 5 ? 70 + (5 - remaining) * 55 : 60
-        track(setTimeout(step, delay))
+        // Same delay every step for a steady, constant-speed roulette.
+        track(setTimeout(step, SWAP_INTERVAL))
       }
       step()
     }
