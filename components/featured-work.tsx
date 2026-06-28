@@ -1,20 +1,4 @@
-const WORK = [
-  {
-    title: "BRAND EXPERIENCE",
-    tags: "Identity / Art Direction / Web",
-    image: "/images/hero-sculpture.png",
-  },
-  {
-    title: "DIGITAL PRODUCT",
-    tags: "UI/UX / Frontend & System",
-    image: "/images/material-study.png",
-  },
-  {
-    title: "SPACE & EXPERIENCE",
-    tags: "Concept / Spatial Design / Direction",
-    image: "/images/packaging.png",
-  },
-]
+import { getWorks } from "@/lib/works"
 
 function Arrow() {
   return (
@@ -25,6 +9,8 @@ function Arrow() {
 }
 
 export function FeaturedWork() {
+  const works = getWorks()
+
   return (
     <section id="work" className="mx-auto max-w-6xl px-6 py-24 md:py-32">
       <div className="flex items-center justify-between">
@@ -43,8 +29,8 @@ export function FeaturedWork() {
       </div>
 
       <ul className="mt-12 border-t border-border/40">
-        {WORK.map((item) => (
-          <li key={item.title}>
+        {works.map((item) => (
+          <li key={item.id}>
             <a
               href="#contact"
               className="group grid grid-cols-1 items-center gap-6 border-b border-border/40 py-6 sm:grid-cols-[200px_1fr_auto] sm:gap-8"
