@@ -114,6 +114,8 @@ export default async function WorkDetailPage({ params }: Params) {
                   <img
                     src={src || "/placeholder.svg"}
                     alt={`${work.title} のギャラリー画像 ${i + 1}`}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full object-cover"
                   />
                 </div>
@@ -133,6 +135,8 @@ export default async function WorkDetailPage({ params }: Params) {
             <img
               src={next.coverImage || "/placeholder.svg"}
               alt={`${next.title} へ`}
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 h-full w-full object-cover brightness-[0.3] transition-all duration-700 group-hover:scale-105 group-hover:brightness-[0.4]"
             />
             <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 py-24 text-center md:py-32">

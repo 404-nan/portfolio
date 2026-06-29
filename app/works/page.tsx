@@ -58,6 +58,8 @@ export default async function WorksPage() {
                     <img
                       src={item.coverImage || "/placeholder.svg"}
                       alt={`${item.title} の事例ビジュアル`}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover brightness-90 transition-all duration-700 group-hover:scale-105 group-hover:brightness-100"
                     />
                     <span className="absolute left-4 top-4 font-mono text-xs tracking-[0.2em] text-foreground/70">
