@@ -1,9 +1,8 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { asc, desc, eq } from "drizzle-orm"
-import { db } from "@/lib/db"
-import { works, type Work } from "@/lib/db/schema"
+import { supabase } from "@/lib/supabase"
+import { rowToWork, type Work, type WorkRow } from "@/lib/db/schema"
 
 export type WorkInput = {
   id?: string
@@ -32,8 +31,8 @@ function slugify(value: string) {
 
 async function generateId(title: string) {
   const base = slugify(title) || "work"
-  const existing = await db.select({ id: works.id }).from(works)
-  const ids = new Set(existing.map((r) => r.id))
+  const { data } = await supabase.from("works").select("id")
+  const ids = new Set((data ?? []).map((r: { id: string }) => r.id))
   if (!ids.has(base)) return base
   let i = 2
   while (ids.has(`${base}-${i}`)) i++
@@ -48,17 +47,22 @@ function revalidate(id?: string) {
 }
 
 export async function listWorks(): Promise<Work[]> {
-  try {
-    return await db.select().from(works).orderBy(asc(works.order), desc(works.createdAt))
-  } catch {
-    console.warn("[works] Query failed — table may not exist yet. Visit /api/init to create it.")
+  const { data, error } = await supabase
+    .from("works")
+    .select("*")
+    .order("order", { ascending: true })
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    console.error("listWorks error:", error.message)
     return []
   }
+  return (data as WorkRow[]).map(rowToWork)
 }
 
 export async function createWork(input: WorkInput) {
   const id = input.id?.trim() || (await generateId(input.title))
-  await db.insert(works).values({
+  const { error } = await supabase.from("works").insert({
     id,
     title: input.title,
     subtitle: input.subtitle,
@@ -66,41 +70,44 @@ export async function createWork(input: WorkInput) {
     year: input.year,
     client: input.client,
     role: input.role,
-    coverImage: input.coverImage,
+    cover_image: input.coverImage,
     overview: input.overview,
     body: input.body,
     gallery: input.gallery,
     order: input.order,
     published: input.published,
   })
+  if (error) throw new Error(error.message)
   revalidate(id)
   return { id }
 }
 
 export async function updateWork(id: string, input: WorkInput) {
-  await db
-    .update(works)
-    .set({
+  const { error } = await supabase
+    .from("works")
+    .update({
       title: input.title,
       subtitle: input.subtitle,
       tags: input.tags,
       year: input.year,
       client: input.client,
       role: input.role,
-      coverImage: input.coverImage,
+      cover_image: input.coverImage,
       overview: input.overview,
       body: input.body,
       gallery: input.gallery,
       order: input.order,
       published: input.published,
-      updatedAt: new Date(),
+      updated_at: new Date().toISOString(),
     })
-    .where(eq(works.id, id))
+    .eq("id", id)
+  if (error) throw new Error(error.message)
   revalidate(id)
   return { id }
 }
 
 export async function deleteWork(id: string) {
-  await db.delete(works).where(eq(works.id, id))
+  const { error } = await supabase.from("works").delete().eq("id", id)
+  if (error) throw new Error(error.message)
   revalidate(id)
 }

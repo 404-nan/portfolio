@@ -1,28 +1,49 @@
-import { asc, eq } from "drizzle-orm"
-import { db } from "@/lib/db"
-import { works, type Work } from "@/lib/db/schema"
+import { supabase } from "@/lib/supabase"
+import { rowToWork, type Work, type WorkRow } from "@/lib/db/schema"
 
 export type { Work }
 
 export async function getWorks(): Promise<Work[]> {
-  try {
-    return await db.select().from(works).orderBy(asc(works.order), asc(works.createdAt))
-  } catch {
-    console.warn("[works] Query failed — table may not exist yet")
+  const { data, error } = await supabase
+    .from("works")
+    .select("*")
+    .order("order", { ascending: true })
+    .order("created_at", { ascending: true })
+
+  if (error) {
+    console.error("getWorks error:", error.message)
     return []
   }
+  return (data as WorkRow[]).map(rowToWork)
 }
 
 export async function getPublishedWorks(): Promise<Work[]> {
-  const rows = await getWorks()
-  return rows.filter((w) => w.published)
+  const { data, error } = await supabase
+    .from("works")
+    .select("*")
+    .eq("published", true)
+    .order("order", { ascending: true })
+    .order("created_at", { ascending: true })
+
+  if (error) {
+    console.error("getPublishedWorks error:", error.message)
+    return []
+  }
+  return (data as WorkRow[]).map(rowToWork)
 }
 
 export async function getWorkById(id: string): Promise<Work | null> {
-  try {
-    const rows = await db.select().from(works).where(eq(works.id, id)).limit(1)
-    return rows[0] ?? null
-  } catch {
+  const { data, error } = await supabase
+    .from("works")
+    .select("*")
+    .eq("id", id)
+    .limit(1)
+    .single()
+
+  if (error) {
+    if (error.code === "PGRST116") return null // not found
+    console.error("getWorkById error:", error.message)
     return null
   }
+  return rowToWork(data as WorkRow)
 }
