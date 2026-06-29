@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
   ArrowLeft,
+  ClipboardCopy,
   ClipboardPaste,
   Eye,
   EyeOff,
@@ -131,6 +132,23 @@ function parseJsonImport(text: string): Partial<FormState> | null {
     return null
   }
 }
+
+const JSON_TEMPLATE = `{
+  "title": "プロジェクト名",
+  "subtitle": "サブタイトル（一言で表すキャッチ）",
+  "year": "${new Date().getFullYear()}",
+  "tags": "Design / Web / Branding",
+  "client": "クライアント名",
+  "role": "Art Direction, Web Design",
+  "coverImage": "https://（カバー画像URL）",
+  "overview": "プロジェクトを一言で表すリード文",
+  "body": "詳細な説明文。改行で段落を分けられます。",
+  "gallery": [
+    "https://（ギャラリー画像1）",
+    "https://（ギャラリー画像2）"
+  ],
+  "published": true
+}`
 
 export function WorksManager({ initialWorks }: { initialWorks: Work[] }) {
   const router = useRouter()
@@ -370,6 +388,7 @@ export function WorksManager({ initialWorks }: { initialWorks: Work[] }) {
           onImport={handleImport}
           onDirectImport={handleDirectImport}
           onClose={() => { setShowImport(false); setImportText("") }}
+          onFlash={flash}
           pending={pending}
         />
       )}
@@ -385,6 +404,7 @@ function JsonImportModal({
   onImport,
   onDirectImport,
   onClose,
+  onFlash,
   pending,
 }: {
   value: string
@@ -392,8 +412,33 @@ function JsonImportModal({
   onImport: () => void
   onDirectImport: () => void
   onClose: () => void
+  onFlash: (msg: string) => void
   pending: boolean
 }) {
+  const [copied, setCopied] = useState(false)
+
+  async function copyTemplate() {
+    try {
+      await navigator.clipboard.writeText(JSON_TEMPLATE)
+      setCopied(true)
+      onFlash("テンプレートをコピーしました — GPTsに貼り付けてください")
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Fallback for older browsers
+      const ta = document.createElement("textarea")
+      ta.value = JSON_TEMPLATE
+      ta.style.position = "fixed"
+      ta.style.opacity = "0"
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand("copy")
+      document.body.removeChild(ta)
+      setCopied(true)
+      onFlash("テンプレートをコピーしました — GPTsに貼り付けてください")
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
@@ -408,29 +453,32 @@ function JsonImportModal({
         </div>
 
         <div className="space-y-4 p-6">
-          <p className="text-sm leading-relaxed text-neutral-400">
-            GPTsやChatGPTで生成したJSONを貼り付けてください。
-            コードブロック（```json ...```）もそのまま貼れます。
-          </p>
+          {/* Step-by-step guide */}
+          <div className="space-y-2 rounded border border-white/[0.06] bg-white/[0.02] p-4">
+            <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">使い方</p>
+            <ol className="space-y-1 text-sm leading-relaxed text-neutral-400">
+              <li className="flex gap-2"><span className="shrink-0 text-neutral-600">①</span> 下の「雛形をコピー」でテンプレートをコピー</li>
+              <li className="flex gap-2"><span className="shrink-0 text-neutral-600">②</span> GPTs / ChatGPT に貼って内容を埋めてもらう</li>
+              <li className="flex gap-2"><span className="shrink-0 text-neutral-600">③</span> 返ってきたJSONをここにペースト</li>
+              <li className="flex gap-2"><span className="shrink-0 text-neutral-600">④</span> 「そのまま追加」で即登録！</li>
+            </ol>
+          </div>
+
+          {/* Copy template button */}
+          <button
+            onClick={copyTemplate}
+            className="flex w-full items-center justify-center gap-2 rounded border border-dashed border-white/20 bg-white/[0.03] px-4 py-3 font-mono text-xs text-neutral-300 transition-all hover:border-white/40 hover:bg-white/[0.06]"
+          >
+            <ClipboardCopy className="h-3.5 w-3.5" />
+            {copied ? "コピーしました ✓" : "雛形をコピー"}
+          </button>
 
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={`{
-  "title": "プロジェクト名",
-  "subtitle": "サブタイトル",
-  "year": "2025",
-  "tags": "Design / Web",
-  "client": "クライアント名",
-  "role": "Art Direction",
-  "coverImage": "https://...",
-  "overview": "概要テキスト",
-  "body": "本文...",
-  "gallery": ["https://...", "https://..."]
-}`}
-            rows={14}
+            placeholder="GPTsから返ってきたJSONをここに貼り付け..."
+            rows={12}
             className="w-full rounded border border-white/10 bg-white/5 px-4 py-3 font-mono text-xs leading-relaxed text-white placeholder:text-neutral-600 focus:border-white/30 focus:outline-none"
-            autoFocus
           />
         </div>
 
